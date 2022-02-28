@@ -26,7 +26,7 @@ func get_page(url string) string {
 
 	err := easy.Perform()
 	if err != nil {
-		fmt.Println("ERROR: ${err}\n")
+		//fmt.Println("ERROR: ${err}")
 	}
 
 	return ""
