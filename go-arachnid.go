@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-
-	curl "github.com/andelf/go-curl"
+	"io/ioutil"
+	"net/http"
+	"strings"
 )
 
 func main() {
@@ -14,20 +15,43 @@ func main() {
 
 	fmt.Println(url)
 
-	page := get_page(url)
+	page := get_page(sanitize_url(url))
+
+	get_urls(page)
+
 	fmt.Println(page)
+	fmt.Printf("%s\n", page)
+}
+
+func get_urls(html string) [1]string {
+	index := strings.Index(html, "http")
+	fmt.Printf("%c\n", index)
+	array := [1]string{""}
+	return array
+}
+
+func sanitize_url(url string) string {
+	sanitized := url
+
+	if !strings.Contains(url, "http") {
+		sanitized = "http://" + url
+	}
+
+	return sanitized
 }
 
 func get_page(url string) string {
-	easy := curl.EasyInit()
-	defer easy.Cleanup()
-
-	easy.Setopt(curl.OPT_URL, url)
-
-	err := easy.Perform()
+	resp, err := http.Get(url)
 	if err != nil {
-		//fmt.Println("ERROR: ${err}")
+		panic(err)
 	}
 
-	return ""
+	defer resp.Body.Close()
+
+	html, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(html)
 }
